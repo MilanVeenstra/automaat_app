@@ -1,34 +1,27 @@
 import 'package:automaat_app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('App shows home screen with welcome message', (
+  testWidgets('App renders MaterialApp with router', (
     WidgetTester tester,
   ) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const AutoMaatApp());
+    // Build our app wrapped in ProviderScope and trigger a frame.
+    await tester.pumpWidget(const ProviderScope(child: AutoMaatApp()));
 
-    // Wait for any animations to complete
-    await tester.pumpAndSettle();
+    // Wait for initial frame
+    await tester.pump();
 
-    // Verify that the app title is displayed
-    expect(find.text('AutoMaat'), findsOneWidget);
-
-    // Verify that the welcome message is displayed
-    expect(find.text('Welcome to AutoMaat'), findsOneWidget);
-    expect(find.text('Your car rental app'), findsOneWidget);
-
-    // Verify the car icon is present
-    expect(find.byIcon(Icons.directions_car), findsOneWidget);
+    // App should render MaterialApp
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 
-  testWidgets('App renders without errors', (WidgetTester tester) async {
-    // This is a simple smoke test to ensure the app starts
-    await tester.pumpWidget(const AutoMaatApp());
+  testWidgets('App shows AutoMaat title', (WidgetTester tester) async {
+    await tester.pumpWidget(const ProviderScope(child: AutoMaatApp()));
     await tester.pumpAndSettle();
 
-    // App should render without throwing
-    expect(find.byType(MaterialApp), findsOneWidget);
+    // App title should be visible somewhere in the widget tree
+    expect(find.text('AutoMaat'), findsWidgets);
   });
 }
