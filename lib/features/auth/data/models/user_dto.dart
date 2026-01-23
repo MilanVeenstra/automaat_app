@@ -39,6 +39,17 @@ class UserDto {
     );
   }
 
+  /// Convert DTO to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'login': login,
+      'email': email,
+      if (firstName != null) 'firstName': firstName,
+      if (lastName != null) 'lastName': lastName,
+    };
+  }
+
   /// Convert DTO to domain entity
   User toEntity() => User(
         id: id,

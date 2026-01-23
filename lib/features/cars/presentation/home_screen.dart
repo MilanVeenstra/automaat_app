@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/providers/auth_provider.dart';
+import '../../rentals/presentation/rental_history_screen.dart';
+import 'cars_list_screen.dart';
+import 'widgets/filter_dialog.dart';
 
-/// Placeholder home screen for Phase 0
+/// Home screen showing the cars list
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const FilterDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,9 +23,27 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AutoMaat'),
+        title: const Text('Available Cars'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              _showFilterDialog(context);
+            },
+            tooltip: 'Filters',
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const RentalHistoryScreen(),
+                ),
+              );
+            },
+            tooltip: 'My Rentals',
+          ),
           if (authState.user != null)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -35,34 +63,7 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.directions_car,
-              size: 80,
-              color: Colors.black54,
-            ),
-            SizedBox(height: 24),
-            Text(
-              'Welcome to AutoMaat',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Your car rental app',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: const CarsListScreen(),
     );
   }
 }
