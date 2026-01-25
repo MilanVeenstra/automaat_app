@@ -11,8 +11,8 @@ class RentalDto {
   final String fromDate;
   final String toDate;
   final String state;
-  final UserDto customer;
-  final CarDto car;
+  final UserDto? customer;
+  final CarDto? car;
 
   const RentalDto({
     required this.id,
@@ -22,25 +22,29 @@ class RentalDto {
     required this.fromDate,
     required this.toDate,
     required this.state,
-    required this.customer,
-    required this.car,
+    this.customer,
+    this.car,
   });
 
   factory RentalDto.fromJson(Map<String, dynamic> json) {
     return RentalDto(
       id: json['id'] as int,
-      code: json['code'] as String,
+      code: json['code'] as String? ?? '',
       longitude: json['longitude'] != null
           ? (json['longitude'] as num).toDouble()
           : null,
       latitude: json['latitude'] != null
           ? (json['latitude'] as num).toDouble()
           : null,
-      fromDate: json['fromDate'] as String,
-      toDate: json['toDate'] as String,
-      state: json['state'] as String,
-      customer: UserDto.fromJson(json['customer'] as Map<String, dynamic>),
-      car: CarDto.fromJson(json['car'] as Map<String, dynamic>),
+      fromDate: json['fromDate'] as String? ?? '2024-01-01',
+      toDate: json['toDate'] as String? ?? '2024-01-01',
+      state: json['state'] as String? ?? 'ACTIVE',
+      customer: json['customer'] != null
+          ? UserDto.fromJson(json['customer'] as Map<String, dynamic>)
+          : null,
+      car: json['car'] != null
+          ? CarDto.fromJson(json['car'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -53,12 +57,33 @@ class RentalDto {
       'fromDate': fromDate,
       'toDate': toDate,
       'state': state,
-      'customer': customer.toJson(),
-      'car': car.toJson(),
+      if (customer != null) 'customer': customer!.toJson(),
+      if (car != null) 'car': car!.toJson(),
     };
   }
 
   Rental toEntity() {
+    // Provide dummy customer/car if null (for minimal API responses)
+    final dummyCustomer = customer ??
+        const UserDto(
+          id: 0,
+          login: 'unknown',
+          email: 'unknown@automaat.com',
+        );
+    final dummyCar = car ??
+        CarDto(
+          id: 0,
+          brand: 'Unknown',
+          model: 'Unknown',
+          fuel: 'GASOLINE',
+          licensePlate: 'UNKNOWN',
+          engineSize: 0,
+          modelYear: 2024,
+          price: 0,
+          nrOfSeats: 4,
+          body: 'SEDAN',
+        );
+
     return Rental(
       id: id,
       code: code,
@@ -67,8 +92,8 @@ class RentalDto {
       fromDate: DateTime.parse(fromDate),
       toDate: DateTime.parse(toDate),
       state: RentalState.fromString(state),
-      customer: customer.toEntity(),
-      car: car.toEntity(),
+      customer: dummyCustomer.toEntity(),
+      car: dummyCar.toEntity(),
     );
   }
 }

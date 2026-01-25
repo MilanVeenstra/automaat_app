@@ -29,11 +29,11 @@ class UserDto {
         lastName: systemUser['lastName'] as String?,
       );
     }
-    // Fallback for flat user structure (e.g., from register response)
+    // Fallback for flat user structure (e.g., from register response or minimal rental response)
     return UserDto(
       id: json['id'] as int,
-      login: json['login'] as String,
-      email: json['email'] as String,
+      login: json['login'] as String? ?? 'user${json['id']}',
+      email: json['email'] as String? ?? 'user${json['id']}@automaat.com',
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
     );

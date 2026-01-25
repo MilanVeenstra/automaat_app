@@ -54,6 +54,7 @@ class RentalsRepositoryImpl implements RentalsRepository {
   }) async {
     // First update the rental to RETURNED state
     final updateRequest = UpdateRentalRequestDto(
+      id: rentalId,
       state: 'RETURNED',
       longitude: longitude,
       latitude: latitude,

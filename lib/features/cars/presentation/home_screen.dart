@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/providers/auth_provider.dart';
+import '../../inspections/presentation/damage_reports_screen.dart';
 import '../../rentals/presentation/rental_history_screen.dart';
 import 'cars_list_screen.dart';
 import 'widgets/filter_dialog.dart';
@@ -43,6 +44,17 @@ class HomeScreen extends ConsumerWidget {
               );
             },
             tooltip: 'My Rentals',
+          ),
+          IconButton(
+            icon: const Icon(Icons.report_problem),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const DamageReportsScreen(),
+                ),
+              );
+            },
+            tooltip: 'Damage Reports',
           ),
           if (authState.user != null)
             Padding(

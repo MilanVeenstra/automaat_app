@@ -9,11 +9,13 @@ import '../../domain/entities/rental.dart';
 class RentalCard extends StatelessWidget {
   final Rental rental;
   final VoidCallback? onEndRental;
+  final VoidCallback? onReportDamage;
 
   const RentalCard({
     super.key,
     required this.rental,
     this.onEndRental,
+    this.onReportDamage,
   });
 
   @override
@@ -99,20 +101,38 @@ class RentalCard extends StatelessWidget {
               ],
             ),
 
-            // End rental button for active rentals
-            if (rental.isActive && onEndRental != null) ...[
+            // Action buttons for active rentals
+            if (rental.isActive && (onEndRental != null || onReportDamage != null)) ...[
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: onEndRental,
-                  icon: const Icon(Icons.check_circle),
-                  label: const Text('End Rental'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
+              Row(
+                children: [
+                  if (onReportDamage != null)
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: onReportDamage,
+                        icon: const Icon(Icons.report_problem, size: 18),
+                        label: const Text('Report Damage'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                  if (onReportDamage != null && onEndRental != null)
+                    const SizedBox(width: 8),
+                  if (onEndRental != null)
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: onEndRental,
+                        icon: const Icon(Icons.check_circle, size: 18),
+                        label: const Text('End Rental'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ],

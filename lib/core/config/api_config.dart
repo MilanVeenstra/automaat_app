@@ -19,4 +19,9 @@ abstract class ApiConfig {
   // Rentals endpoints
   static const String rentals = '/api/rentals';
   static String rentalById(int id) => '/api/rentals/$id';
+
+  // Inspections (Damage Reports) endpoints
+  static const String inspections = '/api/inspections';
+  static String inspectionById(int id) => '/api/inspections/$id';
+  static const String inspectionPhotos = '/api/inspection-photos';
 }

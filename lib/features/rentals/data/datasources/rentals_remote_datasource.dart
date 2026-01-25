@@ -54,9 +54,16 @@ class RentalsRemoteDatasource {
     UpdateRentalRequestDto request,
   ) async {
     try {
+      // Ensure the DTO has the correct ID
+      final requestWithId = UpdateRentalRequestDto(
+        id: rentalId,
+        state: request.state,
+        longitude: request.longitude,
+        latitude: request.latitude,
+      );
       final response = await _dio.patch(
         ApiConfig.rentalById(rentalId),
-        data: request.toJson(),
+        data: requestWithId.toJson(),
       );
       return RentalDto.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
@@ -74,6 +81,7 @@ class RentalsRemoteDatasource {
       final response = await _dio.patch(
         ApiConfig.carById(carId),
         data: {
+          'id': carId,
           'longitude': longitude,
           'latitude': latitude,
         },

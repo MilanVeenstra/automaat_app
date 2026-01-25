@@ -37,16 +37,16 @@ class CarDto {
   factory CarDto.fromJson(Map<String, dynamic> json) {
     return CarDto(
       id: json['id'] as int,
-      brand: json['brand'] as String,
-      model: json['model'] as String,
+      brand: json['brand'] as String? ?? 'Unknown',
+      model: json['model'] as String? ?? 'Unknown',
       picture: json['picture'] as String?,
-      fuel: json['fuel'] as String,
-      licensePlate: json['licensePlate'] as String,
-      engineSize: (json['engineSize'] as num).toDouble(),
-      modelYear: json['modelYear'] as int,
-      price: (json['price'] as num).toDouble(),
-      nrOfSeats: json['nrOfSeats'] as int,
-      body: json['body'] as String,
+      fuel: json['fuel'] as String? ?? 'GASOLINE',
+      licensePlate: json['licensePlate'] as String? ?? 'UNKNOWN',
+      engineSize: json['engineSize'] != null ? (json['engineSize'] as num).toDouble() : 0.0,
+      modelYear: json['modelYear'] as int? ?? 2020,
+      price: json['price'] != null ? (json['price'] as num).toDouble() : 0.0,
+      nrOfSeats: json['nrOfSeats'] as int? ?? 4,
+      body: json['body'] as String? ?? 'SEDAN',
       longitude: json['longitude'] != null
           ? (json['longitude'] as num).toDouble()
           : null,

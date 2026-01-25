@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
+import '../../inspections/presentation/create_damage_report_screen.dart';
 import '../domain/entities/rental.dart';
 import 'providers/rentals_provider.dart';
 import 'widgets/rental_card.dart';
@@ -108,6 +109,7 @@ class _RentalHistoryScreenState extends ConsumerState<RentalHistoryScreen> {
             ...activeRentals.map((rental) => RentalCard(
                   rental: rental,
                   onEndRental: () => _showEndRentalDialog(rental),
+                  onReportDamage: () => _navigateToReportDamage(rental),
                 )),
             const SizedBox(height: 24),
           ],
@@ -123,6 +125,14 @@ class _RentalHistoryScreenState extends ConsumerState<RentalHistoryScreen> {
             ...pastRentals.map((rental) => RentalCard(rental: rental)),
           ],
         ],
+      ),
+    );
+  }
+
+  void _navigateToReportDamage(Rental rental) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CreateDamageReportScreen(rental: rental),
       ),
     );
   }
