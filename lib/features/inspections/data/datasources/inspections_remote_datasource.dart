@@ -4,13 +4,13 @@ import '../../../../core/config/api_config.dart';
 import '../models/create_inspection_request_dto.dart';
 import '../models/inspection_dto.dart';
 
-/// Remote datasource for Inspections API
+/// Remote datasource voor Inspecties API
 class InspectionsRemoteDatasource {
   final Dio _dio;
 
   InspectionsRemoteDatasource({required Dio dio}) : _dio = dio;
 
-  /// Get all inspections
+  /// Haal alle inspecties op
   Future<List<InspectionDto>> getInspections() async {
     final response = await _dio.get(ApiConfig.inspections);
     final List<dynamic> data = response.data as List<dynamic>;
@@ -19,13 +19,13 @@ class InspectionsRemoteDatasource {
         .toList();
   }
 
-  /// Get inspection by ID
+  /// Haal inspectie op via ID
   Future<InspectionDto> getInspectionById(int id) async {
     final response = await _dio.get(ApiConfig.inspectionById(id));
     return InspectionDto.fromJson(response.data as Map<String, dynamic>);
   }
 
-  /// Create a new inspection
+  /// Maak een nieuwe inspectie aan
   Future<InspectionDto> createInspection(
       CreateInspectionRequestDto request) async {
     final response = await _dio.post(

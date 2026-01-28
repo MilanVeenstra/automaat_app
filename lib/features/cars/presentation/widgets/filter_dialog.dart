@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/car.dart';
 import '../providers/cars_provider.dart';
 
-/// Filter dialog for selecting fuel and body type filters
+/// Filter dialoog voor het selecteren van brandstof en carrosserie type filters
 class FilterDialog extends ConsumerWidget {
   const FilterDialog({super.key});
 

@@ -5,7 +5,7 @@ import '../datasources/auth_remote_datasource.dart';
 import '../models/login_request_dto.dart';
 import '../models/register_request_dto.dart';
 
-/// Implementation of [AuthRepository] using remote API
+/// Implementatie van [AuthRepository] met remote API
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource _remoteDatasource;
   final TokenStorage _tokenStorage;

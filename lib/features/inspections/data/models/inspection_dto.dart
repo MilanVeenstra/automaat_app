@@ -1,7 +1,7 @@
 import '../../../rentals/data/models/rental_dto.dart';
 import '../../domain/entities/inspection.dart';
 
-/// DTO for Inspection API responses
+/// DTO voor Inspectie API responses
 class InspectionDto {
   final int id;
   final String code;

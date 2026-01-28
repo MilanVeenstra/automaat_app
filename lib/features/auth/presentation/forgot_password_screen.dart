@@ -6,7 +6,7 @@ import '../../../core/router/app_router.dart';
 import 'providers/auth_provider.dart';
 import 'widgets/auth_form_field.dart';
 
-/// Screen for requesting password reset
+/// Scherm voor het aanvragen van wachtwoord reset
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 

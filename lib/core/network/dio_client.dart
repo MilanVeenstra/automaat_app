@@ -4,7 +4,7 @@ import '../config/api_config.dart';
 import 'jwt_interceptor.dart';
 import 'token_storage.dart';
 
-/// Configured Dio HTTP client with JWT interceptor
+/// Geconfigureerde Dio HTTP client met JWT interceptor
 class DioClient {
   late final Dio dio;
 

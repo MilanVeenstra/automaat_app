@@ -1,6 +1,6 @@
 import 'dart:math';
 
-/// Car entity representing a rental car
+/// Auto entiteit die een huurauto representeert
 class Car {
   final int id;
   final String brand;
@@ -32,11 +32,11 @@ class Car {
     this.latitude,
   });
 
-  /// Calculate distance from given coordinates (in km)
+  /// Bereken afstand van gegeven coördinaten (in km)
   double? distanceFrom(double userLat, double userLon) {
     if (latitude == null || longitude == null) return null;
 
-    // Haversine formula
+    // Haversine formule
     const double earthRadius = 6371; // km
     final double dLat = _toRadians(latitude! - userLat);
     final double dLon = _toRadians(longitude! - userLon);
@@ -58,7 +58,7 @@ class Car {
   double _sqrt(double value) => sqrt(value);
 }
 
-/// Car fuel type enum
+/// Auto brandstof type enum
 enum CarFuel {
   gasoline('GASOLINE'),
   diesel('DIESEL'),
@@ -89,7 +89,7 @@ enum CarFuel {
   }
 }
 
-/// Car body type enum
+/// Auto carrosserie type enum
 enum CarBody {
   stationwagon('STATIONWAGON'),
   sedan('SEDAN'),

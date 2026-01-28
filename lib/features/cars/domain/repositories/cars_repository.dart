@@ -1,13 +1,13 @@
 import '../entities/car.dart';
 
-/// Abstract interface for cars operations
+/// Abstracte interface voor auto operaties
 abstract class CarsRepository {
-  /// Get all available cars
+  /// Haal alle beschikbare auto's op
   Future<List<Car>> getAllCars();
 
-  /// Get a single car by ID
+  /// Haal een enkele auto op via ID
   Future<Car> getCarById(int id);
 
-  /// Search cars by query (brand or model)
+  /// Zoek auto's op query (merk of model)
   Future<List<Car>> searchCars(String query);
 }

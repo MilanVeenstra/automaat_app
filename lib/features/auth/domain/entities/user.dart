@@ -1,4 +1,4 @@
-/// Domain entity representing an authenticated user
+/// Domein entiteit die een geauthenticeerde gebruiker representeert
 class User {
   final int id;
   final String login;
@@ -14,7 +14,7 @@ class User {
     this.lastName,
   });
 
-  /// User's display name (full name if available, otherwise login)
+  /// Gebruiker's weergave naam (volledige naam indien beschikbaar, anders login)
   String get displayName {
     if (firstName != null || lastName != null) {
       return '${firstName ?? ''} ${lastName ?? ''}'.trim();

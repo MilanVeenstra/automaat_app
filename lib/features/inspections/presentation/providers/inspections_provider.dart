@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/datasources/inspections_remote_datasource.dart';
 import '../../data/repositories/inspections_repository_impl.dart';
@@ -17,10 +18,12 @@ final inspectionsRemoteDatasourceProvider =
 final inspectionsRepositoryProvider = Provider<InspectionsRepository>((ref) {
   return InspectionsRepositoryImpl(
     remoteDatasource: ref.watch(inspectionsRemoteDatasourceProvider),
+    database: ref.watch(appDatabaseProvider),
+    connectivityService: ref.watch(connectivityServiceProvider),
   );
 });
 
-// State for inspections
+// Inspecties state
 class InspectionsState {
   final List<Inspection> inspections;
   final InspectionsStatus status;
@@ -47,13 +50,13 @@ class InspectionsState {
 
 enum InspectionsStatus { initial, loading, loaded, error }
 
-// Inspections notifier
+// Inspecties notifier
 class InspectionsNotifier extends StateNotifier<InspectionsState> {
   final InspectionsRepository _repository;
 
   InspectionsNotifier(this._repository) : super(const InspectionsState());
 
-  /// Load all inspections
+  /// Laad alle inspecties
   Future<void> loadInspections() async {
     state = state.copyWith(status: InspectionsStatus.loading);
     try {
@@ -70,7 +73,7 @@ class InspectionsNotifier extends StateNotifier<InspectionsState> {
     }
   }
 
-  /// Create a new inspection (damage report)
+  /// Maak nieuwe inspectie aan (schade rapport)
   Future<bool> createInspection({
     required int rentalId,
     required int odometer,
@@ -79,7 +82,6 @@ class InspectionsNotifier extends StateNotifier<InspectionsState> {
     String? photoBase64,
   }) async {
     try {
-      print('Provider: Creating inspection...');
       final inspection = await _repository.createInspection(
         rentalId: rentalId,
         odometer: odometer,
@@ -88,18 +90,13 @@ class InspectionsNotifier extends StateNotifier<InspectionsState> {
         photoBase64: photoBase64,
       );
 
-      print('Provider: Inspection created successfully: ${inspection.id}');
-
-      // Add to local state
+      // Voeg toe aan lokale state
       state = state.copyWith(
         inspections: [...state.inspections, inspection],
       );
 
-      print('Provider: Returning true');
       return true;
-    } catch (e, stackTrace) {
-      print('Provider: Error creating inspection: $e');
-      print('Provider: Stack trace: $stackTrace');
+    } catch (e) {
       state = state.copyWith(
         status: InspectionsStatus.error,
         error: e.toString(),

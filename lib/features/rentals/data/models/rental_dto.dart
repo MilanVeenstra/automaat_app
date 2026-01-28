@@ -2,7 +2,7 @@ import '../../../auth/data/models/user_dto.dart';
 import '../../../cars/data/models/car_dto.dart';
 import '../../domain/entities/rental.dart';
 
-/// DTO for Rental API responses
+/// DTO voor Verhuur API responses
 class RentalDto {
   final int id;
   final String code;
@@ -63,7 +63,7 @@ class RentalDto {
   }
 
   Rental toEntity() {
-    // Provide dummy customer/car if null (for minimal API responses)
+    // Gebruik dummy waarden indien null
     final dummyCustomer = customer ??
         const UserDto(
           id: 0,

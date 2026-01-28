@@ -7,7 +7,7 @@ import '../../domain/entities/car.dart';
 import '../car_detail_screen.dart';
 import '../providers/cars_provider.dart';
 
-/// Card widget displaying car information
+/// Card widget voor het weergeven van auto informatie
 class CarCard extends ConsumerWidget {
   final Car car;
 
@@ -34,19 +34,19 @@ class CarCard extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Car image
+              // Auto afbeelding
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: _buildCarImage(),
               ),
               const SizedBox(width: 16),
 
-              // Car details
+              // Auto details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Brand and Model
+                    // Merk en model
                     Text(
                       '${car.brand} ${car.model}',
                       style: const TextStyle(
@@ -56,9 +56,9 @@ class CarCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
 
-                    // Year
+                    // Bouwjaar en kenteken
                     Text(
-                      '${car.modelYear}',
+                      '${car.modelYear} • ${car.licensePlate}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -66,7 +66,7 @@ class CarCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Fuel and Body type
+                    // Brandstof en carrosserie type
                     Row(
                       children: [
                         _buildBadge(
@@ -84,7 +84,7 @@ class CarCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Seats
+                    // Zitplaatsen
                     Row(
                       children: [
                         Icon(Icons.person, size: 16, color: Colors.grey[600]),
@@ -100,7 +100,7 @@ class CarCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    // Price
+                    // Prijs
                     Row(
                       children: [
                         Text(
@@ -124,7 +124,7 @@ class CarCard extends ConsumerWidget {
                 ),
               ),
 
-              // Favorite button
+              // Favoriet knop
               IconButton(
                 icon: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,

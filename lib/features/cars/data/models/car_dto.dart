@@ -2,7 +2,7 @@ import 'dart:math';
 
 import '../../domain/entities/car.dart';
 
-/// Data Transfer Object for Car
+/// Data Transfer Object voor Auto
 class CarDto {
   final int id;
   final String brand;

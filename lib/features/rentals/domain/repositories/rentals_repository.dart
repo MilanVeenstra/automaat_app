@@ -1,14 +1,14 @@
 import '../entities/rental.dart';
 
-/// Repository interface for rentals operations
+/// Repository interface voor verhuur operaties
 abstract class RentalsRepository {
-  /// Get all rentals for the current user
+  /// Haal alle verhuren voor de huidige gebruiker op
   Future<List<Rental>> getMyRentals();
 
-  /// Get rental by ID
+  /// Haal verhuur op via ID
   Future<Rental> getRentalById(int id);
 
-  /// Create a new rental
+  /// Maak een nieuwe verhuur aan
   Future<Rental> createRental({
     required int carId,
     required int customerId,
@@ -18,7 +18,14 @@ abstract class RentalsRepository {
     double? latitude,
   });
 
-  /// End a rental (update to RETURNED state and update car location)
+  /// Start een verhuur (update RESERVED naar ACTIVE status)
+  Future<Rental> startRental({
+    required int rentalId,
+    required double longitude,
+    required double latitude,
+  });
+
+  /// Beëindig een verhuur (update naar RETURNED status en update auto locatie)
   Future<Rental> endRental({
     required int rentalId,
     required int carId,
@@ -26,6 +33,6 @@ abstract class RentalsRepository {
     required double latitude,
   });
 
-  /// Get active rental for a specific car
+  /// Haal actieve verhuur voor een specifieke auto op
   Future<Rental?> getActiveRentalForCar(int carId);
 }

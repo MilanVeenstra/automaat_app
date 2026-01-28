@@ -7,9 +7,11 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
-import '../../features/cars/presentation/home_screen.dart';
+import '../../features/inspections/presentation/damage_reports_screen.dart';
+import '../../features/main_navigation/presentation/main_navigation_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
 
-/// Route names for the application
+/// Route namen
 abstract class AppRoutes {
   static const String home = '/';
   static const String login = '/login';
@@ -21,9 +23,12 @@ abstract class AppRoutes {
   static const String rentals = '/rentals';
   static const String map = '/map';
   static const String profile = '/profile';
+  static const String favorites = '/favorites';
+  static const String settings = '/settings';
+  static const String damageReports = '/damage-reports';
 }
 
-/// Application router provider with auth guard
+/// Router met authenticatie
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authNotifierProvider);
 
@@ -37,29 +42,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == AppRoutes.forgotPassword ||
           state.matchedLocation == AppRoutes.resetPassword;
 
-      // Still loading auth status - don't redirect
+      // Auth status laden
       if (authState.status == AuthStatus.initial ||
           authState.status == AuthStatus.loading) {
         return null;
       }
 
-      // Not authenticated and not on auth route -> redirect to login
+      // Niet ingelogd -> naar login
       if (!isAuthenticated && !isAuthRoute) {
         return AppRoutes.login;
       }
 
-      // Authenticated and on auth route -> redirect to home
+      // Ingelogd -> naar home
       if (isAuthenticated && isAuthRoute) {
         return AppRoutes.home;
       }
 
-      return null; // No redirect
+      return null;
     },
     routes: [
       GoRoute(
         path: AppRoutes.home,
         name: 'home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const MainNavigationScreen(),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -80,10 +85,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.resetPassword,
         name: 'reset-password',
         builder: (context, state) {
-          // Support optional reset key from query params
+          // Ondersteun optionele reset key van query parameters
           final resetKey = state.uri.queryParameters['key'];
           return ResetPasswordScreen(resetKey: resetKey);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.damageReports,
+        name: 'damage-reports',
+        builder: (context, state) => const DamageReportsScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/storage/favorites_storage.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/datasources/cars_remote_datasource.dart';
@@ -19,13 +20,15 @@ final carsRemoteDatasourceProvider = Provider<CarsRemoteDatasource>((ref) {
 final carsRepositoryProvider = Provider<CarsRepository>((ref) {
   return CarsRepositoryImpl(
     remoteDatasource: ref.watch(carsRemoteDatasourceProvider),
+    database: ref.watch(appDatabaseProvider),
+    connectivityService: ref.watch(connectivityServiceProvider),
   );
 });
 
-/// Cars list state enum
+/// Auto lijst state enum
 enum CarsStatus { initial, loading, loaded, error }
 
-/// Cars list state class
+/// Auto lijst state class
 class CarsState {
   final CarsStatus status;
   final List<Car> cars;
@@ -56,6 +59,8 @@ class CarsState {
     Set<CarFuel>? fuelFilters,
     Set<CarBody>? bodyFilters,
     Set<int>? favoriteIds,
+    bool clearFuelFilters = false,
+    bool clearBodyFilters = false,
   }) {
     return CarsState(
       status: status ?? this.status,
@@ -63,15 +68,15 @@ class CarsState {
       filteredCars: filteredCars ?? this.filteredCars,
       error: error,
       searchQuery: searchQuery ?? this.searchQuery,
-      fuelFilters: fuelFilters ?? this.fuelFilters,
-      bodyFilters: bodyFilters ?? this.bodyFilters,
+      fuelFilters: clearFuelFilters ? null : (fuelFilters ?? this.fuelFilters),
+      bodyFilters: clearBodyFilters ? null : (bodyFilters ?? this.bodyFilters),
       favoriteIds: favoriteIds ?? this.favoriteIds,
     );
   }
 }
 
 
-/// StateNotifier for managing cars list state
+/// StateNotifier voor het beheren van auto lijst state
 class CarsNotifier extends StateNotifier<CarsState> {
   final CarsRepository _repository;
   final FavoritesStorage _favoritesStorage;
@@ -79,7 +84,7 @@ class CarsNotifier extends StateNotifier<CarsState> {
   CarsNotifier(this._repository, this._favoritesStorage)
       : super(const CarsState());
 
-  /// Load all cars from the backend
+  /// Laad alle auto's van de backend
   Future<void> loadCars() async {
     state = state.copyWith(status: CarsStatus.loading);
     try {
@@ -99,20 +104,20 @@ class CarsNotifier extends StateNotifier<CarsState> {
     }
   }
 
-  /// Toggle favorite status for a car
+  /// Schakel favoriet status voor een auto om
   Future<void> toggleFavorite(int carId) async {
     final isFavorite = await _favoritesStorage.toggleFavorite(carId);
     final newFavorites = await _favoritesStorage.getFavorites();
     state = state.copyWith(favoriteIds: newFavorites);
   }
 
-  /// Search cars by query
+  /// Zoek auto's op query
   void searchCars(String query) {
     state = state.copyWith(searchQuery: query);
     _applyFilters();
   }
 
-  /// Filter by fuel type
+  /// Filter op brandstof type
   void toggleFuelFilter(CarFuel fuel) {
     final currentFilters = state.fuelFilters?.toSet() ?? {};
     if (currentFilters.contains(fuel)) {
@@ -122,11 +127,12 @@ class CarsNotifier extends StateNotifier<CarsState> {
     }
     state = state.copyWith(
       fuelFilters: currentFilters.isEmpty ? null : currentFilters,
+      clearFuelFilters: currentFilters.isEmpty,
     );
     _applyFilters();
   }
 
-  /// Filter by body type
+  /// Filter op carrosserie type
   void toggleBodyFilter(CarBody body) {
     final currentFilters = state.bodyFilters?.toSet() ?? {};
     if (currentFilters.contains(body)) {
@@ -136,25 +142,26 @@ class CarsNotifier extends StateNotifier<CarsState> {
     }
     state = state.copyWith(
       bodyFilters: currentFilters.isEmpty ? null : currentFilters,
+      clearBodyFilters: currentFilters.isEmpty,
     );
     _applyFilters();
   }
 
-  /// Clear all filters
+  /// Wis alle filters
   void clearFilters() {
     state = state.copyWith(
       searchQuery: '',
-      fuelFilters: null,
-      bodyFilters: null,
+      clearFuelFilters: true,
+      clearBodyFilters: true,
       filteredCars: state.cars,
     );
   }
 
-  /// Apply current filters to the cars list
+  /// Pas huidige filters toe op de auto lijst
   void _applyFilters() {
     var filtered = state.cars;
 
-    // Apply search query
+    // Pas zoekquery toe
     if (state.searchQuery.isNotEmpty) {
       final query = state.searchQuery.toLowerCase();
       filtered = filtered.where((car) {
@@ -163,14 +170,14 @@ class CarsNotifier extends StateNotifier<CarsState> {
       }).toList();
     }
 
-    // Apply fuel filter
+    // Pas brandstof filter toe
     if (state.fuelFilters != null && state.fuelFilters!.isNotEmpty) {
       filtered = filtered.where((car) {
         return state.fuelFilters!.contains(car.fuel);
       }).toList();
     }
 
-    // Apply body filter
+    // Pas carrosserie filter toe
     if (state.bodyFilters != null && state.bodyFilters!.isNotEmpty) {
       filtered = filtered.where((car) {
         return state.bodyFilters!.contains(car.body);
@@ -181,7 +188,7 @@ class CarsNotifier extends StateNotifier<CarsState> {
   }
 }
 
-/// Main cars state provider
+/// Hoofd auto state provider
 final carsNotifierProvider =
     StateNotifierProvider<CarsNotifier, CarsState>((ref) {
   return CarsNotifier(

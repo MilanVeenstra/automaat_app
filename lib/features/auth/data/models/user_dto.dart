@@ -1,6 +1,6 @@
 import '../../domain/entities/user.dart';
 
-/// DTO for user data from API
+/// DTO voor gebruiker data van API
 class UserDto {
   final int id;
   final String login;
@@ -16,9 +16,9 @@ class UserDto {
     this.lastName,
   });
 
-  /// Parse from /api/AM/me response (Customer with nested systemUser)
+  /// Parse van /api/AM/me response (Customer met geneste systemUser)
   factory UserDto.fromJson(Map<String, dynamic> json) {
-    // The /api/AM/me endpoint returns a Customer object with nested systemUser
+    // Het /api/AM/me endpoint retourneert een Customer object met geneste systemUser
     if (json.containsKey('systemUser')) {
       final systemUser = json['systemUser'] as Map<String, dynamic>;
       return UserDto(
@@ -29,7 +29,7 @@ class UserDto {
         lastName: systemUser['lastName'] as String?,
       );
     }
-    // Fallback for flat user structure (e.g., from register response or minimal rental response)
+    // Fallback voor platte gebruiker structuur (bijv. van register response of minimale verhuur response)
     return UserDto(
       id: json['id'] as int,
       login: json['login'] as String? ?? 'user${json['id']}',
@@ -39,7 +39,7 @@ class UserDto {
     );
   }
 
-  /// Convert DTO to JSON
+  /// Converteer DTO naar JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -50,7 +50,7 @@ class UserDto {
     };
   }
 
-  /// Convert DTO to domain entity
+  /// Converteer DTO naar domein entiteit
   User toEntity() => User(
         id: id,
         login: login,

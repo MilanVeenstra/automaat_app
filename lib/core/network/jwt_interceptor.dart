@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'token_storage.dart';
 
-/// Dio interceptor that adds JWT token to request headers
+/// Dio interceptor die JWT token toevoegt aan request headers
 class JwtInterceptor extends Interceptor {
   final TokenStorage _tokenStorage;
 

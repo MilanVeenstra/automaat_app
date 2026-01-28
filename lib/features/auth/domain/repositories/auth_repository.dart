@@ -1,11 +1,11 @@
 import '../entities/user.dart';
 
-/// Abstract interface for authentication operations
+/// Abstracte interface voor authenticatie operaties
 abstract class AuthRepository {
-  /// Login with username and password, returns JWT token
+  /// Login met gebruikersnaam en wachtwoord, retourneert JWT token
   Future<String> login(String username, String password);
 
-  /// Register a new user
+  /// Registreer een nieuwe gebruiker
   Future<User> register({
     required String login,
     required String email,
@@ -14,18 +14,18 @@ abstract class AuthRepository {
     String? lastName,
   });
 
-  /// Get the currently authenticated user
+  /// Haal de huidige geauthenticeerde gebruiker op
   Future<User> getCurrentUser();
 
-  /// Logout the current user (clears stored token)
+  /// Logout de huidige gebruiker (wist opgeslagen token)
   Future<void> logout();
 
-  /// Check if user is authenticated (has valid token)
+  /// Controleer of gebruiker geauthenticeerd is (heeft geldige token)
   Future<bool> isAuthenticated();
 
-  /// Request a password reset email for the given email address
+  /// Vraag een wachtwoord reset email aan voor het opgegeven email adres
   Future<void> requestPasswordReset(String email);
 
-  /// Complete password reset with the reset key and new password
+  /// Voltooi wachtwoord reset met de reset sleutel en nieuw wachtwoord
   Future<void> finishPasswordReset(String key, String newPassword);
 }

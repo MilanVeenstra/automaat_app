@@ -4,7 +4,7 @@ class CreateInspectionRequestDto {
   final int odometer;
   final String result;
   final String? description;
-  final String? photo; // Base64 encoded image
+  final String? photo; // Base64 gecodeerde afbeelding
 
   const CreateInspectionRequestDto({
     required this.rentalId,

@@ -6,7 +6,7 @@ import '../../../core/router/app_router.dart';
 import 'providers/auth_provider.dart';
 import 'widgets/auth_form_field.dart';
 
-/// Screen for completing password reset with reset key
+/// Scherm voor het voltooien van wachtwoord reset met reset sleutel
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   final String? resetKey;
 
@@ -33,7 +33,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill key if provided via deep link
+    // Vul sleutel vooraf in indien opgegeven via deep link
     if (widget.resetKey != null) {
       _keyController.text = widget.resetKey!;
     }
@@ -64,7 +64,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           );
 
       if (mounted) {
-        // Show success and navigate to login
+        // Toon succes en navigeer naar login
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Password reset successful! Please log in.'),

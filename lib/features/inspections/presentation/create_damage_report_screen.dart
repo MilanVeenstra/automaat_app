@@ -37,7 +37,7 @@ class _CreateDamageReportScreenState
     super.initState();
     _selectedRental = widget.rental;
 
-    // Load rentals if not provided
+    // Laad verhuren indien niet opgegeven
     if (_selectedRental == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(rentalsNotifierProvider.notifier).loadRentals();
@@ -123,14 +123,13 @@ class _CreateDamageReportScreenState
     });
 
     try {
-      // Convert image to base64 if selected
+      // Converteer afbeelding naar base64 indien geselecteerd
       String? photoBase64;
       if (_selectedImage != null) {
         final bytes = await File(_selectedImage!.path).readAsBytes();
         photoBase64 = base64Encode(bytes);
       }
 
-      print('Screen: Calling createInspection...');
       final success =
           await ref.read(inspectionsNotifierProvider.notifier).createInspection(
                 rentalId: _selectedRental!.id,
@@ -141,8 +140,6 @@ class _CreateDamageReportScreenState
                     : _descriptionController.text,
                 photoBase64: photoBase64,
               );
-
-      print('Screen: Got success value: $success');
 
       if (mounted) {
         if (success) {
@@ -156,10 +153,8 @@ class _CreateDamageReportScreenState
           );
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) {
-        print('Error submitting damage report: $e');
-        print('Stack trace: $stackTrace');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
@@ -191,7 +186,7 @@ class _CreateDamageReportScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Rental selection
+              // Verhuur selectie
               if (_selectedRental == null && activeRentals.isNotEmpty)
                 DropdownButtonFormField<Rental>(
                   decoration: const InputDecoration(
@@ -228,7 +223,7 @@ class _CreateDamageReportScreenState
 
               const SizedBox(height: 16),
 
-              // Odometer reading
+              // Kilometerstand
               TextFormField(
                 controller: _odometerController,
                 decoration: const InputDecoration(
@@ -250,7 +245,7 @@ class _CreateDamageReportScreenState
 
               const SizedBox(height: 16),
 
-              // Result dropdown
+              // Resultaat dropdown
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Inspection Result',
@@ -275,7 +270,7 @@ class _CreateDamageReportScreenState
 
               const SizedBox(height: 16),
 
-              // Description
+              // Beschrijving
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -289,7 +284,7 @@ class _CreateDamageReportScreenState
 
               const SizedBox(height: 16),
 
-              // Photo selection
+              // Foto selectie
               Card(
                 child: Column(
                   children: [
@@ -340,7 +335,7 @@ class _CreateDamageReportScreenState
 
               const SizedBox(height: 24),
 
-              // Submit button
+              // Verzend knop
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitReport,
                 style: ElevatedButton.styleFrom(

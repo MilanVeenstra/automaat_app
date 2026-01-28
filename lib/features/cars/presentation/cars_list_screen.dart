@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/cars_provider.dart';
 import 'widgets/car_card.dart';
 
-/// Cars list screen showing available rental cars
+/// Auto lijst scherm met beschikbare huurauto's
 class CarsListScreen extends ConsumerStatefulWidget {
   const CarsListScreen({super.key});
 
@@ -20,7 +20,7 @@ class _CarsListScreenState extends ConsumerState<CarsListScreen> {
   @override
   void initState() {
     super.initState();
-    // Load cars on screen init
+    // Laad auto's bij scherm initialisatie
     Future.microtask(() {
       ref.read(carsNotifierProvider.notifier).loadCars();
     });
@@ -38,7 +38,7 @@ class _CarsListScreenState extends ConsumerState<CarsListScreen> {
 
     return Column(
         children: [
-          // Search bar
+          // Zoekbalk
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -68,7 +68,7 @@ class _CarsListScreenState extends ConsumerState<CarsListScreen> {
             ),
           ),
 
-          // Active filters chips
+          // Actieve filter chips
           if (carsState.fuelFilters != null ||
               carsState.bodyFilters != null)
             Padding(
@@ -107,7 +107,7 @@ class _CarsListScreenState extends ConsumerState<CarsListScreen> {
               ),
             ),
 
-          // Cars list
+          // Auto lijst
           Expanded(
             child: _buildContent(carsState),
           ),

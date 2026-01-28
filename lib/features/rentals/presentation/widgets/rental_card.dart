@@ -5,15 +5,17 @@ import 'package:intl/intl.dart';
 
 import '../../domain/entities/rental.dart';
 
-/// Card widget displaying rental information
+/// Card widget voor het weergeven van verhuur informatie
 class RentalCard extends StatelessWidget {
   final Rental rental;
+  final VoidCallback? onStartRental;
   final VoidCallback? onEndRental;
   final VoidCallback? onReportDamage;
 
   const RentalCard({
     super.key,
     required this.rental,
+    this.onStartRental,
     this.onEndRental,
     this.onReportDamage,
   });
@@ -31,19 +33,19 @@ class RentalCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Car image
+                // Auto afbeelding
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: _buildCarImage(),
                 ),
                 const SizedBox(width: 16),
 
-                // Car and rental details
+                // Auto en verhuur details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Car brand and model
+                      // Merk en model
                       Text(
                         '${rental.car.brand} ${rental.car.model}',
                         style: const TextStyle(
@@ -53,7 +55,7 @@ class RentalCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
 
-                      // Rental code
+                      // Verhuur code
                       Text(
                         'Rental #${rental.code}',
                         style: TextStyle(
@@ -63,11 +65,11 @@ class RentalCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
 
-                      // State badge
+                      // Status badge
                       _buildStateBadge(),
                       const SizedBox(height: 8),
 
-                      // Date range
+                      // Datum bereik
                       Row(
                         children: [
                           Icon(Icons.calendar_today,
@@ -85,14 +87,14 @@ class RentalCard extends StatelessWidget {
                         ],
                       ),
 
-                      // Price
+                      // Prijs
                       const SizedBox(height: 8),
                       Text(
                         '€${rental.car.price.toStringAsFixed(2)} / day',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -101,39 +103,65 @@ class RentalCard extends StatelessWidget {
               ],
             ),
 
-            // Action buttons for active rentals
-            if (rental.isActive && (onEndRental != null || onReportDamage != null)) ...[
+            // Actie knoppen voor gereserveerde/actieve verhuur
+            if ((rental.isReserved || rental.isActive) &&
+                (onStartRental != null || onEndRental != null || onReportDamage != null)) ...[
+              const SizedBox(height: 16),
+              const Divider(),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  if (onReportDamage != null)
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: onReportDamage,
-                        icon: const Icon(Icons.report_problem, size: 18),
-                        label: const Text('Report Damage'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
+
+              // Gereserveerd: toon Start Rit knop
+              if (rental.isReserved && onStartRental != null)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onStartRental,
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Start Ride'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+
+              // Actief: toon Schade Melden en Beëindig Verhuur knoppen
+              if (rental.isActive)
+                Row(
+                  children: [
+                    if (onReportDamage != null)
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: onReportDamage,
+                          icon: const Icon(Icons.report_problem, size: 18),
+                          label: const Text('Report Damage'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Theme.of(context).colorScheme.primary,
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
-                    ),
-                  if (onReportDamage != null && onEndRental != null)
-                    const SizedBox(width: 8),
-                  if (onEndRental != null)
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: onEndRental,
-                        icon: const Icon(Icons.check_circle, size: 18),
-                        label: const Text('End Rental'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
+                    if (onReportDamage != null && onEndRental != null)
+                      const SizedBox(width: 12),
+                    if (onEndRental != null)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: onEndRental,
+                          icon: const Icon(Icons.check_circle, size: 18),
+                          label: const Text('End Rental'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ],
         ),
@@ -173,34 +201,41 @@ class RentalCard extends StatelessWidget {
   }
 
   Widget _buildStateBadge() {
-    Color color;
+    Color backgroundColor;
+    Color textColor;
+
     switch (rental.state) {
       case RentalState.active:
-        color = Colors.green;
+        backgroundColor = const Color(0xFF000000); // Zwart voor actief
+        textColor = Colors.white;
         break;
       case RentalState.reserved:
-        color = Colors.orange;
+        backgroundColor = const Color(0xFFF5F5F5); // Lichtgrijs voor gereserveerd
+        textColor = const Color(0xFF000000);
         break;
       case RentalState.pickup:
-        color = Colors.blue;
+        backgroundColor = const Color(0xFF424242); // Donkergrijs voor ophalen
+        textColor = Colors.white;
         break;
       case RentalState.returned:
-        color = Colors.grey;
+        backgroundColor = const Color(0xFFEEEEEE); // Zeer lichtgrijs voor ingeleverd
+        textColor = const Color(0xFF757575);
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        rental.state.displayName,
+        rental.state.displayName.toUpperCase(),
         style: TextStyle(
-          fontSize: 12,
-          color: color,
-          fontWeight: FontWeight.w500,
+          fontSize: 11,
+          color: textColor,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
         ),
       ),
     );

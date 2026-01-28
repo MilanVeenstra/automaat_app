@@ -27,7 +27,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
-/// Authentication status enum
+/// Authenticatie status enum
 enum AuthStatus {
   initial,
   loading,
@@ -36,7 +36,7 @@ enum AuthStatus {
   error,
 }
 
-/// Authentication state class
+/// Authenticatie state class
 class AuthState {
   final AuthStatus status;
   final User? user;
@@ -61,13 +61,13 @@ class AuthState {
   }
 }
 
-/// StateNotifier for managing authentication state
+/// StateNotifier voor het beheren van authenticatie state
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
 
   AuthNotifier(this._repository) : super(const AuthState());
 
-  /// Check authentication status on app start (session persistence)
+  /// Controleer authenticatie status bij app start (sessie persistentie)
   Future<void> checkAuthStatus() async {
     state = state.copyWith(status: AuthStatus.loading);
     try {
@@ -83,7 +83,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Login with username and password
+  /// Login met gebruikersnaam en wachtwoord
   Future<void> login(String username, String password) async {
     state = state.copyWith(status: AuthStatus.loading, error: null);
     try {
@@ -98,7 +98,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Register a new user and auto-login
+  /// Registreer een nieuwe gebruiker en auto-login
   Future<void> register({
     required String login,
     required String email,
@@ -115,7 +115,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         firstName: firstName,
         lastName: lastName,
       );
-      // Auto-login after registration
+      // Auto-login na registratie
       await this.login(login, password);
     } catch (e) {
       state = AuthState(
@@ -125,7 +125,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Logout the current user
+  /// Logout de huidige gebruiker
   Future<void> logout() async {
     await _repository.logout();
     state = const AuthState(status: AuthStatus.unauthenticated);
@@ -147,7 +147,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-/// Main auth state provider
+/// Hoofd auth state provider
 final authNotifierProvider =
     StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(ref.watch(authRepositoryProvider));

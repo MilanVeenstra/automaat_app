@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Reusable form field widget for authentication screens
+/// Herbruikbaar formulier veld widget voor authenticatie schermen
 class AuthFormField extends StatelessWidget {
   final TextEditingController controller;
   final String label;

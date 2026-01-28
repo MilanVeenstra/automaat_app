@@ -1,4 +1,4 @@
-/// Base exception class for application errors
+/// Basis exception class voor applicatie fouten
 sealed class AppException implements Exception {
   final String message;
 
@@ -8,19 +8,19 @@ sealed class AppException implements Exception {
   String toString() => message;
 }
 
-/// Exception for network-related errors
+/// Exception voor netwerk-gerelateerde fouten
 class NetworkException extends AppException {
   final int? statusCode;
 
   const NetworkException(super.message, {this.statusCode});
 }
 
-/// Exception for authentication errors
+/// Exception voor authenticatie fouten
 class AuthException extends AppException {
   const AuthException(super.message);
 }
 
-/// Exception for validation errors with field-specific messages
+/// Exception voor validatie fouten met veld-specifieke berichten
 class ValidationException extends AppException {
   final Map<String, String> fieldErrors;
 

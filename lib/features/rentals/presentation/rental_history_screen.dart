@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/location_helper.dart';
 import '../../inspections/presentation/create_damage_report_screen.dart';
 import '../domain/entities/rental.dart';
 import 'providers/rentals_provider.dart';
 import 'widgets/rental_card.dart';
 
-/// Rental history screen showing user's past and active rentals
+/// Verhuur geschiedenis scherm met eerdere en actieve verhuur
 class RentalHistoryScreen extends ConsumerStatefulWidget {
   const RentalHistoryScreen({super.key});
 
@@ -164,36 +164,14 @@ class _RentalHistoryScreenState extends ConsumerState<RentalHistoryScreen> {
   }
 
   Future<void> _endRental(Rental rental) async {
-    // Get current location
-    Position? position;
-    try {
-      final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        final requested = await Geolocator.requestPermission();
-        if (requested == LocationPermission.denied ||
-            requested == LocationPermission.deniedForever) {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Location permission denied. Using car location.'),
-            ),
-          );
-        }
-      }
-      position = await Geolocator.getCurrentPosition();
-    } catch (e) {
-      // If location fails, use rental's original location or Rotterdam as fallback
-      position = null;
-    }
+    // Haal huidige locatie op of gebruik fallback
+    final location = await LocationHelper.getCurrentLocationOrFallback();
 
     final success = await ref.read(rentalsNotifierProvider.notifier).endRental(
           rentalId: rental.id,
           carId: rental.car.id,
-          longitude:
-              position?.longitude ?? rental.longitude ?? 4.4777, // Rotterdam
-          latitude:
-              position?.latitude ?? rental.latitude ?? 51.9244, // Rotterdam
+          longitude: location.longitude,
+          latitude: location.latitude,
         );
 
     if (!mounted) return;
@@ -202,9 +180,9 @@ class _RentalHistoryScreenState extends ConsumerState<RentalHistoryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            position != null
-                ? 'Rental ended successfully. Car location updated.'
-                : 'Rental ended successfully. Used fallback location.',
+            location.isFallback
+                ? 'Rental ended successfully. Used fallback location.'
+                : 'Rental ended successfully. Car location updated.',
           ),
         ),
       );

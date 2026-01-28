@@ -1,7 +1,7 @@
 import '../../../cars/domain/entities/car.dart';
 import '../../../auth/domain/entities/user.dart';
 
-/// Rental entity representing a car rental
+/// Verhuur entiteit die een autoverhuur representeert
 class Rental {
   final int id;
   final String code;
@@ -25,16 +25,19 @@ class Rental {
     required this.car,
   });
 
-  /// Check if rental is currently active
+  /// Controleer of verhuur momenteel actief is
   bool get isActive => state == RentalState.active;
 
-  /// Check if rental is in the past
+  /// Controleer of verhuur gereserveerd is (nog niet gestart)
+  bool get isReserved => state == RentalState.reserved;
+
+  /// Controleer of verhuur in het verleden is
   bool get isPast => DateTime.now().isAfter(toDate);
 
-  /// Check if rental is upcoming
+  /// Controleer of verhuur aankomend is
   bool get isUpcoming => DateTime.now().isBefore(fromDate);
 
-  /// Check if rental is ongoing right now
+  /// Controleer of verhuur nu gaande is
   bool get isOngoing =>
       DateTime.now().isAfter(fromDate) && DateTime.now().isBefore(toDate);
 
@@ -63,7 +66,7 @@ class Rental {
   }
 }
 
-/// Rental state enum
+/// Verhuur status enum
 enum RentalState {
   active('ACTIVE'),
   reserved('RESERVED'),

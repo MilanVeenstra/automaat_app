@@ -6,13 +6,13 @@ import '../models/login_request_dto.dart';
 import '../models/register_request_dto.dart';
 import '../models/user_dto.dart';
 
-/// Remote data source for authentication API calls
+/// Remote data source voor authenticatie API calls
 class AuthRemoteDatasource {
   final Dio _dio;
 
   AuthRemoteDatasource(this._dio);
 
-  /// Authenticate user and get JWT token
+  /// Authenticeer gebruiker en haal JWT token op
   Future<AuthResponseDto> login(LoginRequestDto request) async {
     final response = await _dio.post<Map<String, dynamic>>(
       ApiConfig.login,
@@ -21,7 +21,7 @@ class AuthRemoteDatasource {
     return AuthResponseDto.fromJson(response.data!);
   }
 
-  /// Register new user via AutoMaat endpoint
+  /// Registreer nieuwe gebruiker via AutoMaat endpoint
   Future<UserDto> register(RegisterRequestDto request) async {
     final response = await _dio.post<Map<String, dynamic>>(
       ApiConfig.register,
@@ -30,13 +30,13 @@ class AuthRemoteDatasource {
     return UserDto.fromJson(response.data!);
   }
 
-  /// Get current authenticated user
+  /// Haal huidige geauthenticeerde gebruiker op
   Future<UserDto> getCurrentUser() async {
     final response = await _dio.get<Map<String, dynamic>>(ApiConfig.me);
     return UserDto.fromJson(response.data!);
   }
 
-  /// Request password reset email
+  /// Vraag wachtwoord reset email aan
   Future<void> requestPasswordReset(String email) async {
     await _dio.post(
       ApiConfig.resetPasswordInit,
@@ -47,7 +47,7 @@ class AuthRemoteDatasource {
     );
   }
 
-  /// Complete password reset with key and new password
+  /// Voltooi wachtwoord reset met sleutel en nieuw wachtwoord
   Future<void> finishPasswordReset(String key, String newPassword) async {
     await _dio.post(
       ApiConfig.resetPasswordFinish,

@@ -40,6 +40,7 @@ dependencies:
 
   # Networking
   dio: ^5.4.0
+  http: ^1.2.0
 
   # Secure Storage (JWT)
   flutter_secure_storage: ^9.0.0
@@ -52,9 +53,27 @@ dependencies:
 
   # Location services
   geolocator: ^12.0.0
+  url_launcher: ^6.2.5
+
+  # Maps (OpenStreetMap - no API key needed!)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
   # Image picker for damage reports
   image_picker: ^1.1.2
+
+  # Local database for offline-first
+  drift: ^2.16.0
+  drift_flutter: ^0.2.0
+  path_provider: ^2.1.2
+  path: ^1.9.0
+
+  # Connectivity detection
+  connectivity_plus: ^6.0.2
+
+  # Local notifications
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -74,6 +93,9 @@ dev_dependencies:
   # Code generation for Riverpod
   riverpod_generator: ^2.4.0
   build_runner: ^2.4.8
+
+  # Code generation for Drift
+  drift_dev: ^2.16.0
 
   # Mocking for tests
   mocktail: ^1.0.3

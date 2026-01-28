@@ -44,6 +44,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Project documentation (kept in parent automaat_project_docs)
-docs/
-prompts/
+

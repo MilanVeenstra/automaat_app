@@ -1,4 +1,4 @@
-/// DTO for AutoMaat registration request body
+/// DTO voor AutoMaat registratie request body
 class RegisterRequestDto {
   final String login;
   final String email;

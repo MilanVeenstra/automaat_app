@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'providers/inspections_provider.dart';
 
-/// Screen to display all damage reports
+/// Scherm voor het weergeven van alle schade rapporten
 class DamageReportsScreen extends ConsumerStatefulWidget {
   const DamageReportsScreen({super.key});
 
@@ -17,7 +17,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load inspections when screen opens
+    // Laad inspecties wanneer scherm opent
     Future.microtask(
         () => ref.read(inspectionsNotifierProvider.notifier).loadInspections());
   }
@@ -106,7 +106,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header row with code and result
+                  // Header rij met code en resultaat
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -121,7 +121,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Odometer
+                  // Kilometerteller
                   Row(
                     children: [
                       const Icon(Icons.speed, size: 16, color: Colors.grey),
@@ -134,7 +134,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Date
+                  // Datum
                   if (inspection.completed != null) ...[
                     Row(
                       children: [
@@ -151,7 +151,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
                     const SizedBox(height: 8),
                   ],
 
-                  // Rental info
+                  // Verhuur info
                   if (inspection.rental != null) ...[
                     Row(
                       children: [
@@ -180,7 +180,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
                     ],
                   ],
 
-                  // Description
+                  // Beschrijving
                   if (inspection.description != null &&
                       inspection.description!.isNotEmpty) ...[
                     const Divider(),
@@ -200,7 +200,7 @@ class _DamageReportsScreenState extends ConsumerState<DamageReportsScreen> {
                     const SizedBox(height: 8),
                   ],
 
-                  // Photo indicator
+                  // Foto indicator
                   if (inspection.photo != null) ...[
                     const Divider(),
                     const SizedBox(height: 8),

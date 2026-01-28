@@ -1,14 +1,14 @@
 import '../entities/inspection.dart';
 
-/// Repository interface for Inspections
+/// Repository interface voor Inspecties
 abstract class InspectionsRepository {
-  /// Get all inspections
+  /// Haal alle inspecties op
   Future<List<Inspection>> getInspections();
 
-  /// Get inspection by ID
+  /// Haal inspectie op via ID
   Future<Inspection> getInspectionById(int id);
 
-  /// Create a new inspection (damage report)
+  /// Maak een nieuwe inspectie aan (schade rapport)
   Future<Inspection> createInspection({
     required int rentalId,
     required int odometer,

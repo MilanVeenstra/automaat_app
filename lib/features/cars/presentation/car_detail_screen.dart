@@ -2,14 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
 
+import '../../../core/config/app_constants.dart';
+import '../../../core/utils/location_helper.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../rentals/presentation/providers/rentals_provider.dart';
 import '../domain/entities/car.dart';
 import 'providers/cars_provider.dart';
 
-/// Car detail screen showing detailed car information
+/// Auto detail scherm
 class CarDetailScreen extends ConsumerStatefulWidget {
   final Car car;
 
@@ -21,6 +25,64 @@ class CarDetailScreen extends ConsumerStatefulWidget {
 
 class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
   bool _isLoading = false;
+  LatLng? _currentLocation;
+  List<LatLng> _routePoints = [];
+  double? _routeDistance; // in kilometers
+  double? _routeDuration; // in minutes
+  bool _isLoadingRoute = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  /// Haal route op van OSRM (OpenStreetMap routing service)
+  Future<void> _fetchRoute() async {
+    if (_currentLocation == null ||
+        widget.car.latitude == null ||
+        widget.car.longitude == null) {
+      return;
+    }
+
+    setState(() => _isLoadingRoute = true);
+
+    try {
+      final startLon = _currentLocation!.longitude;
+      final startLat = _currentLocation!.latitude;
+      final endLon = widget.car.longitude!;
+      final endLat = widget.car.latitude!;
+
+      // OSRM demo server - gratis routing
+      final url = Uri.parse(
+        'https://router.project-osrm.org/route/v1/driving/'
+        '$startLon,$startLat;$endLon,$endLat'
+        '?overview=full&geometries=geojson',
+      );
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final route = data['routes'][0];
+        final geometry = route['geometry']['coordinates'] as List;
+
+        setState(() {
+          _routePoints = geometry
+              .map((coord) => LatLng(coord[1] as double, coord[0] as double))
+              .toList();
+          _routeDistance = route['distance'] / 1000; // meters naar km
+          _routeDuration = route['duration'] / 60; // seconden naar minuten
+          _isLoadingRoute = false;
+        });
+      } else {
+        setState(() => _isLoadingRoute = false);
+      }
+    } catch (e) {
+      setState(() => _isLoadingRoute = false);
+      // Route is optioneel - fout wordt genegeerd
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +92,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.car.brand} ${widget.car.model}'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         actions: [
           IconButton(
             icon: Icon(
@@ -49,7 +111,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Car image
+            // Auto afbeelding
             _buildCarImage(),
 
             Padding(
@@ -57,7 +119,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Brand and Model
+                  // Merk en model
                   Text(
                     '${widget.car.brand} ${widget.car.model}',
                     style: const TextStyle(
@@ -67,7 +129,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Year and License Plate
+                  // Bouwjaar en kenteken
                   Text(
                     '${widget.car.modelYear} • ${widget.car.licensePlate}',
                     style: TextStyle(
@@ -77,11 +139,11 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Price
+                  // Prijs
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.deepPurple.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -96,10 +158,10 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                         ),
                         Text(
                           '€${widget.car.price.toStringAsFixed(2)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
@@ -107,7 +169,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Specifications
+                  // Specificaties
                   const Text(
                     'Specifications',
                     style: TextStyle(
@@ -143,7 +205,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Location
+                  // Locatie kaart met verhuur knop
                   if (widget.car.latitude != null &&
                       widget.car.longitude != null) ...[
                     const Text(
@@ -154,67 +216,224 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
+                  ],
+                ],
+              ),
+            ),
+
+            // Kaart met verhuur knop
+            if (widget.car.latitude != null && widget.car.longitude != null)
+              Stack(
+                children: [
+                  // OpenStreetMap kaart
+                  SizedBox(
+                    height: 300,
+                    child: FlutterMap(
+                      options: MapOptions(
+                        initialCenter: LatLng(
+                          widget.car.latitude!,
+                          widget.car.longitude!,
+                        ),
+                        initialZoom: 14.0,
+                        minZoom: 3.0,
+                        maxZoom: 18.0,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.location_on, color: Colors.grey[700]),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Lat: ${widget.car.latitude!.toStringAsFixed(4)}, '
-                              'Lon: ${widget.car.longitude!.toStringAsFixed(4)}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
+                      children: [
+                        TileLayer(
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.automaat.automaat_app',
+                          maxZoom: 19,
+                        ),
+                        // Route lijn
+                        if (_routePoints.isNotEmpty)
+                          PolylineLayer(
+                            polylines: [
+                              Polyline(
+                                points: _routePoints,
+                                color: Theme.of(context).colorScheme.primary,
+                                strokeWidth: 4.0,
+                              ),
+                            ],
+                          ),
+                        MarkerLayer(
+                          markers: [
+                            // Auto marker
+                            Marker(
+                              point: LatLng(
+                                widget.car.latitude!,
+                                widget.car.longitude!,
+                              ),
+                              width: 40,
+                              height: 40,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.directions_car,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                               ),
                             ),
+                            // Gebruiker locatie marker
+                            if (_currentLocation != null)
+                              Marker(
+                                point: _currentLocation!,
+                                width: 50,
+                                height: 50,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 3,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.3),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Route informatie banner
+                  if (_routeDistance != null && _routeDuration != null)
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.straighten, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_routeDistance!.toStringAsFixed(1)} km',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                const Icon(Icons.access_time, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_routeDuration!.toStringAsFixed(0)} min',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Zwevende verhuur knop
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Rent button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _showRentalDialog,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _showRentalDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Rent This Car',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Text(
-                              'Rent This Car',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                     ),
                   ),
                 ],
               ),
-            ),
+
+            // Ruimte onderaan
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -344,10 +563,10 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
               const SizedBox(height: 16),
               Text(
                 'Total: €${_calculateTotal(fromDate, toDate)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
@@ -383,23 +602,8 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Get current location
-      Position? position;
-      try {
-        final permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          final requested = await Geolocator.requestPermission();
-          if (requested == LocationPermission.denied ||
-              requested == LocationPermission.deniedForever) {
-            throw Exception('Location permission denied');
-          }
-        }
-        position = await Geolocator.getCurrentPosition();
-      } catch (e) {
-        // If location fails, use car's location or Rotterdam as fallback
-        position = null;
-      }
+      // Haal huidige locatie op of gebruik fallback
+      final location = await LocationHelper.getCurrentLocationOrFallback();
 
       final authState = ref.read(authNotifierProvider);
       if (authState.user == null) {
@@ -412,8 +616,9 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                 customerId: authState.user!.id,
                 fromDate: fromDate,
                 toDate: toDate,
-                longitude: position?.longitude ?? widget.car.longitude ?? 4.4777,
-                latitude: position?.latitude ?? widget.car.latitude ?? 51.9244,
+                longitude: location.longitude,
+                latitude: location.latitude,
+                car: widget.car,
               );
 
       if (!mounted) return;
@@ -434,6 +639,29 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final location = await LocationHelper.getCurrentLocationOrFallback();
+      if (mounted) {
+        setState(() {
+          _currentLocation = LatLng(location.latitude, location.longitude);
+        });
+        // Haal automatisch route op
+        await _fetchRoute();
+      }
+    } catch (e) {
+      // Gebruikerslocatie is optioneel - gebruik fallback indien nodig
+      if (mounted) {
+        setState(() {
+          _currentLocation = LatLng(
+            AppConstants.fallbackLatitude,
+            AppConstants.fallbackLongitude,
+          );
+        });
       }
     }
   }

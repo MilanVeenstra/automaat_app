@@ -6,13 +6,13 @@ import '../models/create_rental_request_dto.dart';
 import '../models/rental_dto.dart';
 import '../models/update_rental_request_dto.dart';
 
-/// Remote datasource for rentals API
+/// Remote datasource voor verhuur API
 class RentalsRemoteDatasource {
   final Dio _dio;
 
   RentalsRemoteDatasource({required Dio dio}) : _dio = dio;
 
-  /// Get all rentals for the current user
+  /// Haal alle verhuren voor de huidige gebruiker op
   Future<List<RentalDto>> getMyRentals() async {
     try {
       final response = await _dio.get(ApiConfig.rentals);
@@ -25,7 +25,7 @@ class RentalsRemoteDatasource {
     }
   }
 
-  /// Get rental by ID
+  /// Haal verhuur op via ID
   Future<RentalDto> getRentalById(int id) async {
     try {
       final response = await _dio.get(ApiConfig.rentalById(id));
@@ -35,7 +35,7 @@ class RentalsRemoteDatasource {
     }
   }
 
-  /// Create a new rental
+  /// Maak een nieuwe verhuur aan
   Future<RentalDto> createRental(CreateRentalRequestDto request) async {
     try {
       final response = await _dio.post(
@@ -48,13 +48,13 @@ class RentalsRemoteDatasource {
     }
   }
 
-  /// Update a rental
+  /// Update een verhuur
   Future<RentalDto> updateRental(
     int rentalId,
     UpdateRentalRequestDto request,
   ) async {
     try {
-      // Ensure the DTO has the correct ID
+      // Zorg dat DTO correct ID heeft
       final requestWithId = UpdateRentalRequestDto(
         id: rentalId,
         state: request.state,
@@ -71,7 +71,7 @@ class RentalsRemoteDatasource {
     }
   }
 
-  /// Update car location
+  /// Update auto locatie
   Future<CarDto> updateCarLocation(
     int carId,
     double longitude,
@@ -92,7 +92,7 @@ class RentalsRemoteDatasource {
     }
   }
 
-  /// Get active rentals for a specific car
+  /// Haal actieve verhuren voor een specifieke auto op
   Future<List<RentalDto>> getActiveRentalsForCar(int carId) async {
     try {
       final response = await _dio.get(
